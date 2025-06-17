@@ -62,7 +62,17 @@ async function run() {
       }
     });
 
-
+    app.get('/bookings', async (req, res) => {
+      const { userEmail } = req.query;
+      let query = {};
+      if (userEmail) query.buyerEmail = userEmail;
+      try {
+        const bookings = await bookingCollection.find(query).toArray();
+        res.json(bookings);
+      } catch {
+        res.status(500).send({ error: 'Failed to fetch bookings' });
+      }
+    });
 
     app.post('/tourPackages', async (req, res) => {
       try {
