@@ -120,7 +120,19 @@ app.delete('/tourPackages/:id', async (req, res) => {
   }
 });
 
-
+app.patch('/bookings/:id', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  try {
+    await bookingCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { status } }
+    );
+    res.send({ success: true });
+  } catch {
+    res.status(500).send({ error: 'Failed to update booking status' });
+  }
+});
 
 
 
