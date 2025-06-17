@@ -27,31 +27,31 @@ async function run() {
     await client.connect();
 
     // Database and collection setup
-    const collection = client.db("TourBuzzDB").collection("tourPackagesCollection");
-
+    const packageCollection = client.db("TourBuzzDB").collection("tourPackagesCollection");
+    const bookingCollection = client.db("TourBuzzDB").collection("bookingCollection");
     // retrieve all tour packages with search functionality
+// Filter by guideEmail and search
     app.get('/tourPackages', async (req, res) => {
-      const { search } = req.query;
+      const { guideEmail, search } = req.query;
       let query = {};
+      if (guideEmail) query.guideEmail = guideEmail;
       if (search) {
-      query = {
-        $or: [
-        { tourName: { $regex: search, $options: "i" } },
-        { destination: { $regex: search, $options: "i" } }
-        ]
-      };
+        query.$or = [
+          { tourName: { $regex: search, $options: "i" } },
+          { destination: { $regex: search, $options: "i" } }
+        ];
       }
       try {
-      const packages = await collection.find(query).toArray();
-      res.json(packages);
-      } catch (error) {
-      res.status(500).send({ error: 'Failed to fetch tour packages' });
+        const packages = await packageCollection.find(query).toArray();
+        res.json(packages);
+      } catch {
+        res.status(500).send({ error: 'Failed to fetch tour packages' });
       }
     });
     app.get('/tourPackages/:id', async (req, res) => {
       const id = req.params.id;
       try {
-        const packageData = await collection.findOne({ _id: new ObjectId(id) });
+        const packageData = await packageCollection.findOne({ _id: new ObjectId(id) });
         if (packageData) {
           res.json(packageData);
         } else {
@@ -62,10 +62,12 @@ async function run() {
       }
     });
 
+
+
     app.post('/tourPackages', async (req, res) => {
       try {
           const tourPackage = req.body;
-          const result = await collection.insertOne(tourPackage);
+          const result = await packageCollection.insertOne(tourPackage);
           res.send(result);
       } catch (error) {
           res.status(500).send({ error: 'Failed to add tour package' });
@@ -74,12 +76,32 @@ async function run() {
     app.post('/bookings', async (req, res) => {
       try {
         const booking = req.body;
-        const result = await collection.insertOne(booking);
+        const result = await bookingCollection.insertOne(booking);
         res.send(result);
       } catch (error) {
         res.status(500).send({ error: 'Failed to add booking' });
       }
     });
+
+    // Update a tour package
+app.put('/tourPackages/:id', async (req, res) => {
+  const { id } = req.params;
+  const updateDoc = { $set: req.body };
+  try {
+    await collection.updateOne(
+      { _id: new ObjectId(id) },
+      updateDoc
+    );
+    const updated = await packageCollection.findOne({ _id: new ObjectId(id) });
+    res.send(updated);
+  } catch {
+    res.status(500).send({ error: 'Failed to update package' });
+  }
+});
+
+
+
+
 
 
     
