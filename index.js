@@ -99,6 +99,16 @@ app.put('/tourPackages/:id', async (req, res) => {
   }
 });
 
+// Delete a tour package
+app.delete('/tourPackages/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await packageCollection.deleteOne({ _id: new ObjectId(id) });
+    res.send({ success: true });
+  } catch {
+    res.status(500).send({ error: 'Failed to delete package' });
+  }
+});
 
 
 
