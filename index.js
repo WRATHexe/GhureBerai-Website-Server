@@ -1,9 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-require('dotenv').config();
+
 app.use(cors());
 app.use(express.json());
 
@@ -43,14 +44,14 @@ const verifyFirebaseToken = async (req, res, next) => {
 
 async function run() {
   try {
-    await client.connect();
+    //await client.connect();
 
     const packageCollection = client.db("TourBuzzDB").collection("tourPackagesCollection");
     const bookingCollection = client.db("TourBuzzDB").collection("bookingCollection");
 
     // 1. Public: Anyone can view/search all tour packages
     app.get('/tourPackages', async (req, res) => {
-      const { search } = req.query;
+      const { search } = req.query;   
       let query = {};
       if (search) {
         query = {
@@ -147,9 +148,9 @@ async function run() {
         }
         const result = await bookingCollection.insertOne(booking);
         // Increment booking_count for the booked tour package
-        if (booking.packageId) {
+        if (booking.tour_id) {
           await packageCollection.updateOne(
-            { _id: new ObjectId(booking.packageId) },
+            { _id: new ObjectId(booking.tour_id) },
             { $inc: { booking_count: 1 } }
           );
         }
@@ -211,8 +212,8 @@ async function run() {
     });
 
     // Confirm MongoDB connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("✅ Connected to MongoDB");
+  //   await client.db("admin").command({ ping: 1 });
+  //   console.log("✅ Connected to MongoDB");
   } catch (err) {
     console.error("❌ Error in server startup:", err);
   }
@@ -226,5 +227,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`TourBuzz Server is running on http://localhost:${port}`);
+  // console.log(`TourBuzz Server is running on http://localhost:${port}`);
 });
