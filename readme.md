@@ -97,8 +97,8 @@ It powers features like tour package management, user bookings, and secure guide
 
 ## Contact
 
-**Author:** [Fardin Ruhian]  
-**Email:** [fardinruhian001@gmail.com]
+**Author:** Fardin Ruhian  
+**Email:** fardinruhian001@gmail.com
 
 ---
 
